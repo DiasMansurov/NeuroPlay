@@ -53,6 +53,8 @@ type RefreshSymbolPayload = RefreshPricesPayload & {
 
 const closedMessage =
   "US market is closed. Latest cached stock prices are still shown. Trading reopens at 9:30 AM ET.";
+const shortTradingPausedMessage =
+  "SHORT trading is temporarily paused while we update the accounting logic. Existing positions can still be reviewed.";
 
 function defaultMarketStatus(): InvestmentMarketStatus {
   return {
@@ -120,6 +122,7 @@ export function InvestmentChallengeDashboard({
   const [positionLeverage, setPositionLeverage] = useState(1);
   const [quantity, setQuantity] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [closingPositionId, setClosingPositionId] = useState<string | null>(null);
   const [showLevPanel, setShowLevPanel] = useState(false);
 
   const toastIdRef = useRef(0);
@@ -238,6 +241,8 @@ export function InvestmentChallengeDashboard({
           ? "Competition has not started yet."
         : activeCompetition?.runtimeStatus === "closed"
           ? "Competition closed. Rankings are final."
+        : positionSide === "short"
+          ? shortTradingPausedMessage
         : !marketStatus.isOpen
           ? "US market is closed. Latest cached stock prices are shown, but position orders are disabled."
         : estimatedPositionMargin > currentPortfolioValue * 0.3 + 0.00001
@@ -586,8 +591,9 @@ export function InvestmentChallengeDashboard({
   }
 
   async function closePosition(position: InvestmentPositionView) {
-    if (!account) return;
+    if (!account || closingPositionId) return;
     setBusy(true);
+    setClosingPositionId(position.id);
     showToast(`Closing ${position.side} ${position.symbol} position...`, "info");
     try {
       const response = await fetch(`/api/investment/positions/${position.id}/close`, {
@@ -616,6 +622,7 @@ export function InvestmentChallengeDashboard({
       );
     } finally {
       setBusy(false);
+      setClosingPositionId(null);
     }
   }
 
@@ -951,8 +958,8 @@ export function InvestmentChallengeDashboard({
                       <span className={position.unrealizedPnl >= 0 ? "t-pos" : "t-neg"}>
                         {formatUsd(position.unrealizedPnl)}
                       </span>
-                      <button className="t-close-pos-btn" type="button" onClick={() => void closePosition(position)} disabled={busy}>
-                        Close
+                      <button className="t-close-pos-btn" type="button" onClick={() => void closePosition(position)} disabled={busy || closingPositionId === position.id}>
+                        {closingPositionId === position.id ? "Closing..." : "Close"}
                       </button>
                     </div>
                   </div>
@@ -970,8 +977,8 @@ export function InvestmentChallengeDashboard({
               <div className="t-trades-list">
                 {recentTrades.map((trade, i) => (
                   <div key={i} className="t-trade-row">
-                    <span className={`t-trade-badge ${trade.side === "buy" ? "t-badge-buy" : "t-badge-sell"}`}>
-                      {trade.side.toUpperCase()}
+                    <span className={`t-trade-badge ${tradeBadgeClass(trade)}`}>
+                      {tradeDisplayLabel(trade)}
                     </span>
                     <span className="t-trade-ticker">{trade.symbol}</span>
                     <span className="t-trade-detail">{trade.quantity} @ {formatUsd(trade.price ?? 0)}</span>
@@ -1016,6 +1023,21 @@ function sourceLabel(quote: InvestmentAssetQuote) {
   if (quote.provider === "marketdata_app") return "MarketData.app";
   if (quote.priceSource === "reference") return "Educational reference";
   return quote.provider || "Market data";
+}
+
+function tradeDisplayLabel(trade: { action: string | null; side: string }) {
+  if (trade.action === "open_short") return "OPEN SHORT";
+  if (trade.action === "close_short") return "BUY TO COVER";
+  if (trade.action === "open_long") return "OPEN LONG";
+  if (trade.action === "close_long") return "CLOSE LONG";
+  if (trade.action === "liquidated") return "LIQUIDATED";
+  return trade.side.toUpperCase();
+}
+
+function tradeBadgeClass(trade: { action: string | null; side: string }) {
+  if (trade.action === "open_short" || trade.action === "close_long" || trade.action === "liquidated") return "t-badge-sell";
+  if (trade.action === "close_short" || trade.action === "open_long") return "t-badge-buy";
+  return trade.side === "buy" ? "t-badge-buy" : "t-badge-sell";
 }
 
 function formatDateTime(value: string | null) {
