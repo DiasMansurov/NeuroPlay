@@ -6288,6 +6288,21 @@ li,
   line-height: 1.25;
 }
 
+.investment-recompute-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 0.35rem 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 16px;
+  background: rgba(240, 253, 250, 0.72);
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 .investment-admin-summary {
   align-items: stretch;
   gap: clamp(0.8rem, 1.5vw, 1rem);

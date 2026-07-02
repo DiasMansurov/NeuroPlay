@@ -301,6 +301,18 @@ export type InvestmentShortAuditRow = {
 export type InvestmentPortfolioRecomputeResult = {
   accountId: string;
   teamName: string;
+  oldCashBalance: number;
+  newCashBalance: number;
+  oldTotalPortfolioValue: number;
+  newTotalPortfolioValue: number;
+  oldReturnPercent: number;
+  newReturnPercent: number;
+  realizedPnl: number;
+  unrealizedPnl: number;
+  commissions: number;
+  ignoredTrades: Array<{ id: string; symbol: string; reason: string }>;
+  suspiciousTrades: Array<{ id: string; symbol: string; reason: string }>;
+  changed: boolean;
   beforeCash: number;
   recomputedCash: number;
   cashCorrection: number;
@@ -4385,8 +4397,13 @@ export async function recomputeOfficialInvestmentPortfolio(input: {
     const accountId = rowString(account, "id");
     if (!accountId) continue;
     const beforeCash = rowNumber(account, "cash", rowNumber(account, "cash_balance", rowNumber(account, "starting_cash", INVESTMENT_STARTING_CASH)));
+    const oldView = await buildInvestmentAccountView(accountId, undefined, { reconcileCash: false, mutatePositions: false });
     const replay = await calculateInvestmentAccountCashFromTrades(account, { persistPositionCorrections: !dryRun });
-    let view: InvestmentAccountView | null = null;
+    let view = await buildInvestmentAccountView(accountId, undefined, {
+      reconcileCash: false,
+      overrideCash: replay.cash,
+      mutatePositions: !dryRun
+    });
 
     if (!dryRun) {
       await updateInvestmentAccountCash(accountId, replay.cash);
@@ -4397,6 +4414,21 @@ export async function recomputeOfficialInvestmentPortfolio(input: {
     results.push({
       accountId,
       teamName: rowString(account, "team_name"),
+      oldCashBalance: beforeCash,
+      newCashBalance: replay.cash,
+      oldTotalPortfolioValue: oldView?.portfolio.totalValue ?? beforeCash,
+      newTotalPortfolioValue: view?.portfolio.totalValue ?? replay.cash,
+      oldReturnPercent: oldView?.portfolio.totalReturn ?? 0,
+      newReturnPercent: view?.portfolio.totalReturn ?? 0,
+      realizedPnl: replay.realizedPnl,
+      unrealizedPnl: view?.portfolio.formulaBreakdown.totalUnrealizedPnl ?? 0,
+      commissions: replay.commissions,
+      ignoredTrades: replay.ignoredTrades,
+      suspiciousTrades: replay.suspiciousTrades,
+      changed:
+        Math.abs(replay.cash - beforeCash) > 0.005 ||
+        Math.abs((view?.portfolio.totalValue ?? replay.cash) - (oldView?.portfolio.totalValue ?? beforeCash)) > 0.005 ||
+        replay.positionCorrections > 0,
       beforeCash,
       recomputedCash: replay.cash,
       cashCorrection: replay.cash - beforeCash,
@@ -5528,7 +5560,11 @@ async function calculateInvestmentAccountCashFromTrades(
   if (!accountId) {
     return {
       cash: rowNumber(account, "cash", rowNumber(account, "cash_balance", rowNumber(account, "starting_cash", INVESTMENT_STARTING_CASH))),
-      positionCorrections: 0
+      positionCorrections: 0,
+      realizedPnl: 0,
+      commissions: 0,
+      ignoredTrades: [] as Array<{ id: string; symbol: string; reason: string }>,
+      suspiciousTrades: [] as Array<{ id: string; symbol: string; reason: string }>
     };
   }
   const persistPositionCorrections = options.persistPositionCorrections !== false;
@@ -5541,7 +5577,11 @@ async function calculateInvestmentAccountCashFromTrades(
   if (!Array.isArray(tradeRows)) {
     return {
       cash: rowNumber(account, "cash", rowNumber(account, "cash_balance", rowNumber(account, "starting_cash", INVESTMENT_STARTING_CASH))),
-      positionCorrections: 0
+      positionCorrections: 0,
+      realizedPnl: 0,
+      commissions: 0,
+      ignoredTrades: [] as Array<{ id: string; symbol: string; reason: string }>,
+      suspiciousTrades: [] as Array<{ id: string; symbol: string; reason: string }>
     };
   }
 
@@ -5561,16 +5601,35 @@ async function calculateInvestmentAccountCashFromTrades(
   let cash = rowNumber(account, "starting_cash", INVESTMENT_STARTING_CASH);
   const positionUpdates: Promise<unknown>[] = [];
   let positionCorrections = 0;
+  let realizedPnl = 0;
+  let commissions = 0;
+  const ignoredTrades: Array<{ id: string; symbol: string; reason: string }> = [];
+  const suspiciousTrades: Array<{ id: string; symbol: string; reason: string }> = [];
   const legacyOpenPositionIds = new Set<string>();
   const legacyClosePositionIds = new Set<string>();
 
   for (const trade of tradeRows) {
-    if (Boolean(trade.rejected)) continue;
+    const tradeId = rowString(trade, "id");
+    const tradeSymbol = normalizeSymbol(rowString(trade, "symbol"));
+    if (Boolean(trade.rejected)) {
+      ignoredTrades.push({ id: tradeId, symbol: tradeSymbol, reason: rowNullableString(trade, "reject_reason") ?? "Rejected trade." });
+      continue;
+    }
     const action = rowString(trade, "action");
     const side = rowString(trade, "side");
     const gross = rowNumber(trade, "gross_value", rowNumber(trade, "gross_amount", rowNumber(trade, "price") * rowNumber(trade, "quantity")));
     const fee = rowNumber(trade, "fee_amount");
     const net = rowNumber(trade, "net_value", rowNumber(trade, "net_amount"));
+    const price = rowNumber(trade, "price");
+    if ((side === "buy" || side === "sell" || action) && (!price || price <= 0)) {
+      ignoredTrades.push({ id: tradeId, symbol: tradeSymbol, reason: "Missing or invalid execution price." });
+      continue;
+    }
+    if (price > 1_000_000) {
+      suspiciousTrades.push({ id: tradeId, symbol: tradeSymbol, reason: "Suspicious execution price above $1,000,000." });
+      continue;
+    }
+    commissions += fee;
 
     if (isPositionOpenAction(action)) {
       const margin = rowNumber(trade, "margin_used", Math.max(0, net - fee));
@@ -5584,6 +5643,7 @@ async function calculateInvestmentAccountCashFromTrades(
       const metrics = correctedCloseMetricsForTrade(trade, position, positionId ? openTradeByPositionId.get(positionId) : undefined);
       if (metrics) {
         cash += metrics.cashReturned;
+        realizedPnl += metrics.correctRealizedPnl;
 
         if (positionId && position) {
           const expectedStatus = metrics.liquidated ? "liquidated" : "closed";
@@ -5613,6 +5673,7 @@ async function calculateInvestmentAccountCashFromTrades(
           }
         }
       }
+      if (!metrics) ignoredTrades.push({ id: tradeId, symbol: tradeSymbol, reason: "Could not reconstruct position close metrics." });
       continue;
     }
 
@@ -5625,6 +5686,7 @@ async function calculateInvestmentAccountCashFromTrades(
       } else {
         legacyClosePositionIds.add(positionId);
         cash += legacyPositionMatch.metrics.cashReturned;
+        realizedPnl += legacyPositionMatch.metrics.correctRealizedPnl;
 
         const expectedStatus = legacyPositionMatch.metrics.liquidated ? "liquidated" : "closed";
         const needsPositionUpdate =
@@ -5664,7 +5726,7 @@ async function calculateInvestmentAccountCashFromTrades(
 
   if (positionUpdates.length) await Promise.all(positionUpdates);
 
-  return { cash, positionCorrections };
+  return { cash, positionCorrections, realizedPnl, commissions, ignoredTrades, suspiciousTrades };
 }
 
 async function reconcileInvestmentAccountCashFromTrades(account: Payload) {
@@ -5697,10 +5759,23 @@ async function updateInvestmentAccountCash(accountId: string, cash: number) {
   }
 }
 
-async function buildInvestmentAccountView(accountId: string, priceMapInput?: Map<string, number>): Promise<InvestmentAccountView | null> {
+async function buildInvestmentAccountView(
+  accountId: string,
+  priceMapInput?: Map<string, number>,
+  options: { reconcileCash?: boolean; overrideCash?: number; mutatePositions?: boolean } = {}
+): Promise<InvestmentAccountView | null> {
   let account = await getAccountRow(accountId);
   if (!account) return null;
-  account = await reconcileInvestmentAccountCashFromTrades(account);
+  if (options.reconcileCash !== false) {
+    account = await reconcileInvestmentAccountCashFromTrades(account);
+  }
+  if (typeof options.overrideCash === "number" && Number.isFinite(options.overrideCash)) {
+    account = {
+      ...account,
+      cash: options.overrideCash,
+      cash_balance: options.overrideCash
+    };
+  }
   const [holdingsRows, positionRows, quotes, thesisRows, previousSnapshotValue, assets, competition] = await Promise.all([
     selectRows("investment_holdings", { select: "*", account_id: `eq.${accountId}`, order: "symbol.asc" }),
     listPositionRowsForAccount(accountId),
@@ -5801,7 +5876,10 @@ async function buildInvestmentAccountView(accountId: string, priceMapInput?: Map
   const startingCash = rowNumber(account, "starting_cash", INVESTMENT_STARTING_CASH);
   const holdingsValue = holdingViews.reduce((sum, holding) => sum + holding.marketValue, 0);
   const holdingsUnrealizedPnl = holdingViews.reduce((sum, holding) => sum + holding.unrealizedGainLoss, 0);
-  const normalizedPositionRows = await Promise.all(positionRows.map((row) => liquidatePositionIfBreached(account, row, priceMap)));
+  const normalizedPositionRows =
+    options.mutatePositions === false
+      ? positionRows
+      : await Promise.all(positionRows.map((row) => liquidatePositionIfBreached(account, row, priceMap)));
   const positionViews = normalizedPositionRows.map((row) => mapPositionRow(row, priceMap));
   const openPositions = positionViews.filter((position) => position.status === "open");
   const lockedMargin = openPositions.reduce((sum, position) => sum + position.marginLocked, 0);

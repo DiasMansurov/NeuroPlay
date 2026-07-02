@@ -37,6 +37,19 @@ export async function POST(request: Request) {
       competitionCode: body.competitionCode,
       dryRun: body.dryRun !== false
     });
+    console.info(
+      "INVESTMENT_ADMIN_RECOMPUTE_OFFICIAL_PORTFOLIO",
+      JSON.stringify({
+        adminEmail: organizer.userEmail ?? null,
+        teamId: body.teamId ?? null,
+        competitionId: body.competitionId ?? null,
+        competitionCode: body.competitionCode ?? null,
+        dryRun: body.dryRun !== false,
+        teamsProcessed: result.ok ? result.results.length : 0,
+        teamsChanged: result.ok ? result.results.filter((row) => row.changed).length : 0,
+        timestamp: new Date().toISOString()
+      })
+    );
     const status = result.ok ? 200 : 400;
     return noStoreJson(result, { status });
   } catch (error) {

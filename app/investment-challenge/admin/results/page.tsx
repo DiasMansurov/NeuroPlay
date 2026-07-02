@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AdminOfficialRecomputeButton } from "@/components/investment/admin-official-recompute-button";
 import { AdminResultsRefreshButton } from "@/components/investment/admin-results-refresh-button";
 import { AdminPriceOverrideForm } from "@/components/investment/admin-price-override-form";
 import { formatPercent, formatUsd } from "@/lib/investment-challenge";
@@ -70,6 +71,11 @@ export default async function InvestmentAdminResultsPage({ searchParams }: Resul
               Admin Home
             </Link>
             <AdminResultsRefreshButton />
+            <AdminOfficialRecomputeButton
+              competitionId={bundle.competition?.id}
+              label="Dry run all teams"
+              applyLabel="Recompute all teams"
+            />
             <Link className="button primary" href="/api/investment/admin/export?type=leaderboard&competitionCode=Teenvestor.school">
               Export leaderboard CSV
             </Link>

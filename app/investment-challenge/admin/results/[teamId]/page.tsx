@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AdminOfficialRecomputeButton } from "@/components/investment/admin-official-recompute-button";
 import { AdminTeamPasswordResetForm } from "@/components/investment/admin-team-password-reset-form";
 import { formatPercent, formatUsd } from "@/lib/investment-challenge";
 import { requireInvestmentAdmin } from "@/lib/server-investment-admin-auth";
@@ -91,6 +92,11 @@ export default async function InvestmentAdminTeamDetailPage({ params }: TeamDeta
             <Link className="button primary" href="/api/investment/admin/export?type=trades&competitionCode=Teenvestor.school">
               Export trades CSV
             </Link>
+            <AdminOfficialRecomputeButton
+              teamId={teamId}
+              label="Dry run this team"
+              applyLabel="Recompute this team"
+            />
           </div>
         </div>
       </div>
