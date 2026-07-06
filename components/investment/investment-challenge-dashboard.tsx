@@ -53,8 +53,6 @@ type RefreshSymbolPayload = RefreshPricesPayload & {
 
 const closedMessage =
   "US market is closed. Latest cached stock prices are still shown. Trading reopens at 9:30 AM ET.";
-const shortTradingPausedMessage =
-  "SHORT trading is temporarily paused while we update the accounting logic. Existing positions can still be reviewed.";
 
 function defaultMarketStatus(): InvestmentMarketStatus {
   return {
@@ -241,8 +239,6 @@ export function InvestmentChallengeDashboard({
           ? "Competition has not started yet."
         : activeCompetition?.runtimeStatus === "closed"
           ? "Competition closed. Rankings are final."
-        : positionSide === "short"
-          ? shortTradingPausedMessage
         : !marketStatus.isOpen
           ? "US market is closed. Latest cached stock prices are shown, but position orders are disabled."
         : estimatedPositionMargin > currentPortfolioValue * 0.3 + 0.00001

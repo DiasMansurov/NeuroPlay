@@ -348,8 +348,6 @@ const MARKETDATA_CACHE_FRESH_MS = 15 * 60 * 1000;
 const MARKETDATA_PROVIDER_MAX_AGE_MS = 30 * 60 * 1000;
 const TEAM_PASSWORD_ITERATIONS = 50000;
 const MAX_MARKETDATA_SYMBOLS_PER_CRON = Math.max(1, Number(process.env.MAX_MARKETDATA_SYMBOLS_PER_CRON ?? "50") || 50);
-const SHORT_TRADING_PAUSED_MESSAGE =
-  "SHORT trading is temporarily paused while we update the accounting logic. Existing positions can still be reviewed.";
 type PriceSource = "live" | "cache" | "marketdata_app" | "alpha_vantage" | "yahoo_finance" | "reference" | "unavailable";
 type PriceFailureCode = "rate_limit" | "symbol_not_found" | "price_unavailable" | "stale_price" | "temporary_unavailable";
 type MarketPriceResult =
@@ -3706,7 +3704,6 @@ export async function openInvestmentPosition(input: {
   if (!status.isOpen) return { ok: false as const, reason: status.message };
 
   const side = input.side === "short" ? "short" : "long";
-  if (side === "short") return { ok: false as const, reason: SHORT_TRADING_PAUSED_MESSAGE };
   const quantity = Number(input.quantity);
   const leverage = Number(input.leverage);
   if (!Number.isInteger(quantity) || quantity <= 0) return { ok: false as const, reason: "Quantity must be a positive whole number of shares." };
@@ -3768,7 +3765,7 @@ export async function openInvestmentPosition(input: {
     positionId,
     symbol: asset.symbol,
     assetName: asset.name,
-    action: "open_long",
+    action: side === "short" ? "open_short" : "open_long",
     side,
     quantity,
     price,
