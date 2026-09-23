@@ -4,7 +4,7 @@ import { SignIn } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to your Phronesia account with your email and password."
+  description: "Sign in to your NeuroPlay account."
 };
 
 export default function SignInPage() {
@@ -12,9 +12,9 @@ export default function SignInPage() {
 
   if (!hasClerk) {
     return (
-      <section className="shell section auth-page">
+      <section className="shell section auth-page auth-flow-page">
         <div className="panel stack-md">
-          <p className="eyebrow">Account Access</p>
+          <p className="eyebrow">NeuroPlay Access</p>
           <h1>Authentication is not configured yet</h1>
           <p className="muted">Add Clerk environment keys to enable email verification, passwords, and account sessions.</p>
           <Link className="button primary" href="/">
@@ -26,18 +26,18 @@ export default function SignInPage() {
   }
 
   return (
-    <section className="shell section auth-page">
+    <section className="shell section auth-page auth-flow-page">
       <div className="auth-shell">
         <div className="panel stack-md auth-copy">
-          <p className="eyebrow">Phronesia Account</p>
+          <p className="eyebrow">NeuroPlay Account</p>
           <h1>Welcome back.</h1>
           <p className="muted">
-            Sign in with the same email and password you created after verifying your email code.
+            Sign in to continue your rehabilitation workspace.
           </p>
           <div className="goal-list compact-list">
-            <div className="goal-item">Save progress across devices.</div>
-            <div className="goal-item">Access teacher classes and rankings.</div>
-            <div className="goal-item">Keep learning history and achievements together.</div>
+            <div className="goal-item">Resume personalized rehab plans.</div>
+            <div className="goal-item">Review progress signals.</div>
+            <div className="goal-item">Keep your care workspace protected.</div>
           </div>
         </div>
         <div className="auth-card">
@@ -45,7 +45,7 @@ export default function SignInPage() {
             routing="path"
             path="/sign-in"
             signUpUrl="/sign-up"
-            fallbackRedirectUrl="/account"
+            fallbackRedirectUrl="/"
           />
         </div>
       </div>

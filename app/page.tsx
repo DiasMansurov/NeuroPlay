@@ -1,19 +1,28 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { auth } from "@clerk/nextjs/server";
 
 import { FinanceHome } from "@/components/site/finance-home";
+import { OnboardingGate } from "@/components/site/onboarding-gate";
 import { getFeaturedArticleSummaries } from "@/lib/articles";
 
 export const metadata: Metadata = {
-  title: "Finance & Economics Education Through Simulation",
+  title: "NeuroPlay | Rehabilitation Made Personal",
   description:
-    "Phronesia is an interactive finance and economics simulation platform where students learn markets, money, policy, and crisis management through real-world decisions.",
+    "NeuroPlay helps patients follow personalized rehabilitation, track progress, and stay connected with clinical support.",
   alternates: {
     canonical: "/"
   }
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  const { userId } = hasClerk ? await auth() : { userId: null };
+
+  if (!userId) {
+    return <OnboardingGate />;
+  }
+
   const featuredArticles = getFeaturedArticleSummaries();
   const structuredData = {
     "@context": "https://schema.org",
