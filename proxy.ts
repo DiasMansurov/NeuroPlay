@@ -15,6 +15,10 @@ function redirectToOnboarding(req: NextRequest) {
   return NextResponse.redirect(new URL("/", req.url));
 }
 
+function redirectToDashboard(req: NextRequest) {
+  return NextResponse.redirect(new URL("/dashboard", req.url));
+}
+
 export default hasClerk
   ? clerkMiddleware(async (auth, req) => {
       if (isProtectedApiRoute(req)) {
@@ -25,7 +29,11 @@ export default hasClerk
         const { userId } = await auth();
 
         if (isAuthRoute(req) && userId) {
-          return redirectToOnboarding(req);
+          return redirectToDashboard(req);
+        }
+
+        if (req.nextUrl.pathname === "/" && userId) {
+          return redirectToDashboard(req);
         }
 
         if (!isPublicPageRoute(req) && !userId) {

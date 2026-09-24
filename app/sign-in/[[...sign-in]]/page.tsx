@@ -75,7 +75,8 @@ export default function SignInPage() {
             routing="path"
             path="/sign-in"
             signUpUrl="/sign-up"
-            fallbackRedirectUrl="/"
+            forceRedirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
             appearance={neuroPlayClerkAppearance}
           />
         </div>
