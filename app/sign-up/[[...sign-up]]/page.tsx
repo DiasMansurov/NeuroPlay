@@ -1,68 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { SignUp } from "@clerk/nextjs";
+
+import { DemoAuthForm } from "@/components/site/demo-auth-form";
 
 export const metadata: Metadata = {
   title: "Create Account",
-  description: "Create a NeuroPlay account with Clerk authentication."
-};
-
-const neuroPlayClerkAppearance = {
-  variables: {
-    colorPrimary: "#127cff",
-    colorBackground: "#ffffff",
-    colorText: "#111827",
-    colorTextSecondary: "#697386",
-    colorInputBackground: "#f8fbff",
-    colorInputText: "#111827",
-    colorNeutral: "#64748b",
-    borderRadius: "1rem",
-    fontFamily: '"Avenir Next", "Inter", "Segoe UI", system-ui, sans-serif'
-  },
-  elements: {
-    rootBox: "neuro-clerk-root",
-    cardBox: "neuro-clerk-card-box",
-    card: "neuro-clerk-card",
-    header: "neuro-clerk-header",
-    headerTitle: "neuro-clerk-title",
-    headerSubtitle: "neuro-clerk-subtitle",
-    socialButtonsBlockButton: "neuro-clerk-social-button",
-    formFieldLabel: "neuro-clerk-label",
-    formFieldInput: "neuro-clerk-input",
-    formButtonPrimary: "neuro-clerk-primary-button",
-    footer: "neuro-clerk-footer",
-    footerActionText: "neuro-clerk-footer-text",
-    footerActionLink: "neuro-clerk-link",
-    formFieldErrorText: "neuro-clerk-error",
-    alert: "neuro-clerk-alert",
-    otpCodeFieldInput: "neuro-clerk-otp-input"
-  }
+  description: "Create temporary NeuroPlay demo access."
 };
 
 export default function SignUpPage() {
-  const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-
-  if (!hasClerk) {
-    return (
-      <section className="neuro-auth-page" aria-labelledby="sign-up-title">
-        <div className="neuro-auth-shell">
-          <AuthIntro
-            title="Start your recovery journey"
-            body="Your personalized rehabilitation starts here."
-          />
-          <div className="neuro-auth-message-card">
-            <p className="neuro-auth-kicker">NeuroPlay Access</p>
-            <h2>Authentication is not configured yet</h2>
-            <p>Add Clerk environment keys to enable email codes, passwords, and account sessions.</p>
-            <Link className="neuro-auth-back-link" href="/">
-              Back Home
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="neuro-auth-page neuro-auth-page-sign-up" aria-labelledby="sign-up-title">
       <div className="neuro-auth-shell">
@@ -71,14 +16,7 @@ export default function SignUpPage() {
           body="Your personalized rehabilitation starts here."
         />
         <div className="neuro-auth-card neuro-auth-card-lowered">
-          <SignUp
-            routing="path"
-            path="/sign-up"
-            signInUrl="/sign-in"
-            forceRedirectUrl="/"
-            fallbackRedirectUrl="/"
-            appearance={neuroPlayClerkAppearance}
-          />
+          <DemoAuthForm mode="sign-up" />
         </div>
       </div>
     </section>

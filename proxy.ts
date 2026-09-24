@@ -7,7 +7,7 @@ const isProtectedApiRoute = createRouteMatcher([
   "/api/classes(.*)",
   "/api/profile(.*)"
 ]);
-const isPublicPageRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
+const isPublicPageRoute = createRouteMatcher(["/", "/app(.*)", "/sign-in(.*)", "/sign-up(.*)"]);
 const isApiRoute = createRouteMatcher(["/api(.*)", "/trpc(.*)"]);
 
 function redirectToOnboarding(req: NextRequest) {

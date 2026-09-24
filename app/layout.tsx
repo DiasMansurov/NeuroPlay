@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 
-import { CookieBanner } from "@/components/site/cookie-banner";
-import { SiteFooter } from "@/components/site/footer";
-import { SiteNav } from "@/components/site/nav";
+import { DemoSiteFrame } from "@/components/site/demo-site-frame";
 
 import "./globals.css";
 
@@ -80,15 +77,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-  const { userId } = hasClerk ? await auth() : { userId: null };
-  const showAuthenticatedChrome = Boolean(userId);
-  const content = (
-    <div className={`site-frame ${showAuthenticatedChrome ? "" : "site-frame-auth-gate"}`}>
-      {showAuthenticatedChrome ? <SiteNav /> : null}
-      <main>{children}</main>
-      {showAuthenticatedChrome ? <SiteFooter /> : null}
-    </div>
-  );
+  const content = <DemoSiteFrame>{children}</DemoSiteFrame>;
 
   return (
     <html lang="en" data-scroll-behavior="smooth">
@@ -109,7 +98,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             }}
           >
             {content}
-            {showAuthenticatedChrome ? <CookieBanner /> : null}
           </ClerkProvider>
         ) : (
           <>
