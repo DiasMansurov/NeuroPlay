@@ -8,6 +8,25 @@ import { SiteNav } from "@/components/site/nav";
 
 import "./globals.css";
 
+const clerkLocalization = {
+  signIn: {
+    start: {
+      title: "Sign in to NeuroPlay",
+      titleCombined: "Sign in to NeuroPlay",
+      subtitle: "Welcome back! Sign in to continue your recovery.",
+      subtitleCombined: "Welcome back! Sign in to continue your recovery."
+    }
+  },
+  signUp: {
+    start: {
+      title: "Create your NeuroPlay account",
+      titleCombined: "Create your NeuroPlay account",
+      subtitle: "Start your personalized rehabilitation journey.",
+      subtitleCombined: "Start your personalized rehabilitation journey."
+    }
+  }
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://neuroplay.app"),
   title: {
@@ -79,6 +98,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             signInUrl="/sign-in"
             signUpUrl="/sign-up"
             afterSignOutUrl="/"
+            localization={clerkLocalization}
             appearance={{
               variables: {
                 colorPrimary: "#127cff",
