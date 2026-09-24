@@ -5,12 +5,24 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { exercises, getExercise, todaysPlanIds } from "@/lib/neuroplay/demo-data";
+import { exercises, getExercise, todaysPlanIds, type VisualKind } from "@/lib/neuroplay/demo-data";
+import { GuidanceVisual, guidanceCues } from "./guidance-visual";
 import { StatusPill, cx } from "./ui";
 import s from "./neuroplay.module.css";
 
-const cueList = (alignTarget: string) => ["Move slowly", `Keep your ${alignTarget} aligned`, "Good range of motion", "Breathe steadily", "Smooth and controlled"];
 const REP_MS = 2600;
+
+// Simulated live reading shown during the session, matched to the movement type.
+const liveMetrics: Record<VisualKind, { label: string; value: (rep: number) => string }> = {
+  wrist: { label: "Range of motion", value: (rep) => `${58 + (rep % 7)}°` },
+  rotation: { label: "Rotation", value: (rep) => `${142 + (rep % 9)}°` },
+  grip: { label: "Hold time", value: (rep) => `${(2.6 + (rep % 4) * 0.1).toFixed(1)} s` },
+  fingers: { label: "Tap accuracy", value: (rep) => `${88 + (rep % 8)}%` },
+  shoulder: { label: "Arm elevation", value: (rep) => `${128 + (rep % 11)}°` },
+  reach: { label: "Placement", value: (rep) => `${86 + (rep % 10)}%` },
+  balance: { label: "Symmetry", value: (rep) => `${80 + (rep % 9)}%` },
+  band: { label: "Pull depth", value: (rep) => `${90 + (rep % 8)}%` }
+};
 
 function formatTime(total: number) {
   const minutes = Math.floor(total / 60);
@@ -23,7 +35,8 @@ export function ActiveSession() {
   const params = useSearchParams();
   const exercise = getExercise(params.get("exercise") ?? "") ?? getExercise(todaysPlanIds[0]) ?? exercises[0];
 
-  const cues = cueList(exercise.visual === "wrist" || exercise.visual === "grip" || exercise.visual === "fingers" ? "wrist" : "posture");
+  const cues = guidanceCues[exercise.visual];
+  const liveMetric = liveMetrics[exercise.visual];
 
   const [running, setRunning] = useState(true);
   const [elapsed, setElapsed] = useState(0);
@@ -51,7 +64,7 @@ export function ActiveSession() {
         // Last rep of a set: move to the next set, or hold at full on the final one.
         return current.set < exercise.sets ? { set: current.set + 1, rep: 0 } : { set: current.set, rep: exercise.reps };
       });
-      setCue((value) => (value + 1) % 5);
+      setCue((value) => value + 1);
     }, REP_MS);
     return () => window.clearInterval(timer);
   }, [active, exercise.reps, exercise.sets]);
@@ -108,10 +121,10 @@ export function ActiveSession() {
             </StatusPill>
             <span className={s.demoTag}>Simulated input · camera/sensor coming soon</span>
           </div>
-          <GuidanceVisual paused={!active} />
+          <GuidanceVisual kind={exercise.visual} paused={!active} />
           <div className={s.guidanceCue} key={finished ? "done" : cue} aria-live="polite">
             {finished ? <CircleCheck size={18} aria-hidden="true" /> : <Sparkles size={18} aria-hidden="true" />}
-            {finished ? "Great work — session complete" : active ? cues[cue] : "Take a breath. Resume when ready."}
+            {finished ? "Great work — session complete" : active ? cues[cue % cues.length] : "Take a breath. Resume when ready."}
           </div>
         </section>
 
@@ -155,8 +168,8 @@ export function ActiveSession() {
                 </strong>
               </div>
               <div>
-                <span>Range of motion</span>
-                <strong>{doneReps ? `${58 + (doneReps % 7)}°` : "—"}</strong>
+                <span>{liveMetric.label}</span>
+                <strong>{doneReps ? liveMetric.value(doneReps) : "—"}</strong>
               </div>
               <div>
                 <span>Rep quality</span>
@@ -193,43 +206,5 @@ export function ActiveSession() {
         )}
       </footer>
     </div>
-  );
-}
-
-function GuidanceVisual({ paused }: { paused: boolean }) {
-  const state = paused ? "paused" : "running";
-  return (
-    <svg viewBox="0 0 520 320" aria-hidden="true">
-      <style>{`
-        @keyframes np-wrist { 0%,100% { transform: rotate(-26deg); } 50% { transform: rotate(24deg); } }
-        @keyframes np-pulse { 0%,100% { opacity: .25; } 50% { opacity: .6; } }
-        .np-hand { transform-origin: 262px 170px; animation: np-wrist 2.6s ease-in-out infinite; animation-play-state: ${state}; }
-        .np-pulse { animation: np-pulse 2.6s ease-in-out infinite; animation-play-state: ${state}; }
-        @media (prefers-reduced-motion: reduce) { .np-hand, .np-pulse { animation: none; } }
-      `}</style>
-      {/* target range */}
-      <path d="M262 170 L 380 102 A 136 136 0 0 1 380 238 Z" fill="#0B84FF" opacity="0.07" />
-      <path d="M380 102 A 136 136 0 0 1 380 238" fill="none" stroke="#0B84FF" strokeWidth="3" strokeDasharray="3 10" strokeLinecap="round" />
-      <circle cx="380" cy="102" r="7" fill="#34C759" />
-      <circle cx="380" cy="238" r="7" fill="#34C759" />
-      <text x="396" y="98" fontSize="13" fill="#1F8A3C" fontWeight="600">Target</text>
-      <text x="396" y="252" fontSize="13" fill="#1F8A3C" fontWeight="600">Target</text>
-      {/* tracking points */}
-      <circle className="np-pulse" cx="262" cy="170" r="34" fill="#0B84FF" />
-      {/* forearm */}
-      <rect x="70" y="150" width="200" height="40" rx="20" fill="#FFFFFF" stroke="#D6E4F5" strokeWidth="2" />
-      <circle cx="120" cy="170" r="5" fill="#7DB9FF" />
-      <circle cx="190" cy="170" r="5" fill="#7DB9FF" />
-      {/* hand */}
-      <g className="np-hand">
-        <rect x="250" y="146" width="98" height="48" rx="24" fill="#FFFFFF" stroke="#D6E4F5" strokeWidth="2" />
-        <rect x="330" y="150" width="50" height="15" rx="7.5" fill="#FFFFFF" stroke="#D6E4F5" strokeWidth="2" />
-        <rect x="330" y="168" width="46" height="15" rx="7.5" fill="#FFFFFF" stroke="#D6E4F5" strokeWidth="2" />
-        <circle cx="330" cy="170" r="5" fill="#7DB9FF" />
-        <circle cx="376" cy="160" r="5" fill="#0B84FF" />
-        <line x1="262" y1="170" x2="376" y2="160" stroke="#0B84FF" strokeWidth="2" strokeDasharray="4 5" />
-      </g>
-      <circle cx="262" cy="170" r="9" fill="#0B84FF" stroke="#fff" strokeWidth="3" />
-    </svg>
   );
 }

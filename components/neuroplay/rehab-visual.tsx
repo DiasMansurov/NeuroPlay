@@ -1,15 +1,17 @@
-import { Accessibility, Crosshair, Hand, HandGrab, PersonStanding, Scale, type LucideIcon } from "lucide-react";
+import { Accessibility, Crosshair, Dumbbell, Hand, HandGrab, PersonStanding, RotateCw, Scale, type LucideIcon } from "lucide-react";
 
 import type { VisualKind } from "@/lib/neuroplay/demo-data";
 
 // Compact icon used where an illustration would be too small to read (list thumbnails).
 const visualIcons: Record<VisualKind, LucideIcon> = {
   wrist: Hand,
+  rotation: RotateCw,
   grip: HandGrab,
   fingers: Crosshair,
   shoulder: Accessibility,
   reach: PersonStanding,
-  balance: Scale
+  balance: Scale,
+  band: Dumbbell
 };
 
 export function VisualIcon({ kind, size = 22 }: { kind: VisualKind; size?: number }) {
@@ -162,13 +164,49 @@ function Balance({ hero }: { hero: boolean }) {
   );
 }
 
+function Rotation({ hero }: { hero: boolean }) {
+  const limb = hero ? "#ffffff" : SKIN;
+  const edge = hero ? "none" : "#B9D3F1";
+  const accent = hero ? "#fff" : BLUE;
+  return (
+    <g>
+      <rect x="34" y="92" width="160" height="30" rx="15" fill={limb} stroke={edge} />
+      <rect x="180" y="80" width="60" height="54" rx="22" fill={limb} stroke={edge} />
+      <path d="M182 108 H238 V112 a22 22 0 0 1 -22 20 H204 a22 22 0 0 1 -22 -20 Z" fill={accent} opacity={hero ? 0.5 : 0.85} />
+      <path d="M186 58 A 56 56 0 0 1 262 80" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeDasharray="2 8" />
+      <path d="M254 70 l9 10 l-13 3" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M236 156 A 56 56 0 0 1 160 136" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeDasharray="2 8" />
+      <path d="M168 146 l-9 -10 l13 -3" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+}
+
+function Band({ hero }: { hero: boolean }) {
+  const limb = hero ? "#ffffff" : SKIN;
+  const edge = hero ? "none" : "#B9D3F1";
+  const accent = hero ? "#fff" : BLUE;
+  return (
+    <g>
+      <rect x="268" y="50" width="12" height="120" rx="6" fill={hero ? "rgba(255,255,255,0.4)" : BLUE_LIGHT} />
+      <rect x="170" y="104" width="100" height="6" rx="3" fill={hero ? "#fff" : "#34C759"} />
+      <circle cx="84" cy="56" r="20" fill={limb} stroke={edge} />
+      <rect x="60" y="82" width="48" height="96" rx="22" fill={limb} stroke={edge} />
+      <rect x="96" y="94" width="86" height="24" rx="12" fill={limb} stroke={edge} />
+      <rect x="164" y="92" width="26" height="28" rx="11" fill={limb} stroke={edge} />
+      <path d="M150 74 h-40 m9 -9 l-9 9 l9 9" fill="none" stroke={accent} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+}
+
 const figures: Record<VisualKind, (props: { hero: boolean }) => React.ReactElement> = {
   wrist: Wrist,
+  rotation: Rotation,
   grip: Grip,
   fingers: Fingers,
   shoulder: Shoulder,
   reach: Reach,
-  balance: Balance
+  balance: Balance,
+  band: Band
 };
 
 export function RehabVisual({

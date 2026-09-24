@@ -4,7 +4,7 @@
 export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 export type ExerciseCategory = "Hand & Wrist" | "Shoulder" | "Coordination" | "Strength" | "Mobility";
 export type ExerciseStatus = "completed" | "recommended" | "in-progress" | "upcoming";
-export type VisualKind = "wrist" | "grip" | "fingers" | "shoulder" | "reach" | "balance";
+export type VisualKind = "wrist" | "rotation" | "grip" | "fingers" | "shoulder" | "reach" | "balance" | "band";
 
 export type Exercise = {
   id: string;
@@ -179,7 +179,7 @@ export const exercises: Exercise[] = [
     difficulty: "Beginner",
     intensity: "Low",
     status: "completed",
-    visual: "wrist",
+    visual: "rotation",
     summary: "Palm-up to palm-down turns with the elbow tucked.",
     description:
       "Rotate the forearm so the palm turns up and then down. This restores the rotation needed for tasks like turning a door handle.",
@@ -231,7 +231,7 @@ export const exercises: Exercise[] = [
     difficulty: "Advanced",
     intensity: "High",
     status: "upcoming",
-    visual: "shoulder",
+    visual: "band",
     summary: "Light band rows to strengthen posture muscles.",
     description:
       "Pull a light resistance band towards you to strengthen the muscles that support shoulder stability and posture.",
