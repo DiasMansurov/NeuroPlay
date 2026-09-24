@@ -7,48 +7,97 @@ export const metadata: Metadata = {
   description: "Create a NeuroPlay account with Clerk authentication."
 };
 
+const neuroPlayClerkAppearance = {
+  variables: {
+    colorPrimary: "#127cff",
+    colorBackground: "#ffffff",
+    colorText: "#111827",
+    colorTextSecondary: "#697386",
+    colorInputBackground: "#f8fbff",
+    colorInputText: "#111827",
+    colorNeutral: "#64748b",
+    borderRadius: "1rem",
+    fontFamily: '"Avenir Next", "Inter", "Segoe UI", system-ui, sans-serif'
+  },
+  elements: {
+    rootBox: "neuro-clerk-root",
+    cardBox: "neuro-clerk-card-box",
+    card: "neuro-clerk-card",
+    header: "neuro-clerk-header",
+    headerTitle: "neuro-clerk-title",
+    headerSubtitle: "neuro-clerk-subtitle",
+    socialButtonsBlockButton: "neuro-clerk-social-button",
+    formFieldLabel: "neuro-clerk-label",
+    formFieldInput: "neuro-clerk-input",
+    formButtonPrimary: "neuro-clerk-primary-button",
+    footer: "neuro-clerk-footer",
+    footerActionText: "neuro-clerk-footer-text",
+    footerActionLink: "neuro-clerk-link",
+    formFieldErrorText: "neuro-clerk-error",
+    alert: "neuro-clerk-alert",
+    otpCodeFieldInput: "neuro-clerk-otp-input"
+  }
+};
+
 export default function SignUpPage() {
   const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
   if (!hasClerk) {
     return (
-      <section className="shell section auth-page auth-flow-page">
-        <div className="panel stack-md">
-          <p className="eyebrow">Create NeuroPlay Account</p>
-          <h1>Authentication is not configured yet</h1>
-          <p className="muted">Add Clerk environment keys to enable email codes, passwords, and account sessions.</p>
-          <Link className="button primary" href="/">
-            Back Home
-          </Link>
+      <section className="neuro-auth-page" aria-labelledby="sign-up-title">
+        <div className="neuro-auth-shell">
+          <AuthIntro
+            title="Start your recovery journey"
+            body="Your personalized rehabilitation starts here."
+          />
+          <div className="neuro-auth-message-card">
+            <p className="neuro-auth-kicker">NeuroPlay Access</p>
+            <h2>Authentication is not configured yet</h2>
+            <p>Add Clerk environment keys to enable email codes, passwords, and account sessions.</p>
+            <Link className="neuro-auth-back-link" href="/">
+              Back Home
+            </Link>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="shell section auth-page auth-flow-page">
-      <div className="auth-shell">
-        <div className="panel stack-md auth-copy">
-          <p className="eyebrow">Join NeuroPlay</p>
-          <h1>Create your rehabilitation account.</h1>
-          <p className="muted">
-            Register with the existing Clerk flow to enter the protected NeuroPlay experience.
-          </p>
-          <div className="goal-list compact-list">
-            <div className="goal-item">Protect access before the main app loads.</div>
-            <div className="goal-item">Return later with email and password.</div>
-            <div className="goal-item">Keep rehabilitation progress tied to your account.</div>
-          </div>
-        </div>
-        <div className="auth-card">
+    <section className="neuro-auth-page neuro-auth-page-sign-up" aria-labelledby="sign-up-title">
+      <div className="neuro-auth-shell">
+        <AuthIntro
+          title="Start your recovery journey"
+          body="Your personalized rehabilitation starts here."
+        />
+        <div className="neuro-auth-card neuro-auth-card-lowered">
           <SignUp
             routing="path"
             path="/sign-up"
             signInUrl="/sign-in"
             fallbackRedirectUrl="/"
+            appearance={neuroPlayClerkAppearance}
           />
         </div>
       </div>
     </section>
+  );
+}
+
+function AuthIntro({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="neuro-auth-intro">
+      <div className="onboarding-brand neuro-auth-brand">
+        <span className="onboarding-brand-mark" aria-hidden="true">
+          N
+        </span>
+        <span>NeuroPlay</span>
+      </div>
+      <div className="neuro-auth-heading">
+        <p className="neuro-auth-kicker">Digital rehabilitation companion</p>
+        <h1 id="sign-up-title">{title}</h1>
+        <p>{body}</p>
+      </div>
+    </div>
   );
 }

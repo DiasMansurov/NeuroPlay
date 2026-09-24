@@ -21832,34 +21832,235 @@ main:has(.trading-terminal) {
   box-shadow: 4px 23px 0 -1px #ffffff, -4px 23px 0 -1px #ffffff;
 }
 
-.site-frame-auth-gate .auth-flow-page {
-  width: min(1120px, calc(100% - 2rem));
-  min-height: 100vh;
+.neuro-auth-page {
+  min-height: 100svh;
+  overflow-y: auto;
+  padding: clamp(3.5rem, 9vh, 7rem) clamp(1rem, 3vw, 2rem) clamp(3rem, 10vh, 6rem);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(18, 124, 255, 0.1), transparent 36%),
+    linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+  color: #111827;
+}
+
+.neuro-auth-shell {
+  width: min(460px, 100%);
+  margin: 0 auto;
   display: grid;
-  align-items: center;
-  padding: clamp(1.25rem, 4vw, 3rem) 0;
+  justify-items: center;
+  text-align: center;
 }
 
-.site-frame-auth-gate .auth-shell {
-  align-items: center;
+.neuro-auth-intro {
+  display: grid;
+  gap: 1.15rem;
+  justify-items: center;
+  width: 100%;
 }
 
-.site-frame-auth-gate .panel,
-.site-frame-auth-gate .auth-card {
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+.neuro-auth-brand {
+  justify-content: center;
 }
 
-.site-frame-auth-gate .auth-card {
-  padding: clamp(1rem, 3vw, 1.5rem);
+.neuro-auth-heading {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
 }
 
-.site-frame-auth-gate .auth-copy h1 {
+.neuro-auth-kicker {
+  margin: 0;
+  color: #127cff;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.neuro-auth-heading h1,
+.neuro-auth-message-card h2 {
+  margin: 0;
   color: #111827;
   font-family: var(--font-body), sans-serif;
   letter-spacing: 0;
+}
+
+.neuro-auth-heading h1 {
+  max-width: 420px;
+  font-size: clamp(2.35rem, 6vw, 4rem);
+  line-height: 0.98;
+}
+
+.neuro-auth-heading p {
+  max-width: 360px;
+  margin: 0;
+  color: #657083;
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.neuro-auth-card {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: clamp(2.2rem, 6vh, 4rem);
+}
+
+.neuro-auth-card-lowered {
+  margin-top: clamp(3rem, 8vh, 5.5rem);
+}
+
+.neuro-auth-message-card {
+  width: 100%;
+  display: grid;
+  gap: 1rem;
+  margin-top: clamp(2.2rem, 6vh, 4rem);
+  padding: clamp(1.35rem, 4vw, 2rem);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+}
+
+.neuro-auth-message-card h2 {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  line-height: 1.05;
+}
+
+.neuro-auth-message-card p {
+  margin: 0;
+  color: #657083;
+  line-height: 1.6;
+}
+
+.neuro-auth-back-link {
+  display: inline-flex;
+  justify-self: center;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.8rem 1.25rem;
+  border-radius: 999px;
+  background: #127cff;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 18px 38px rgba(18, 124, 255, 0.24);
+}
+
+.neuro-auth-back-link:hover {
+  background: #006fee;
+  transform: translateY(-1px);
+}
+
+.neuro-auth-card :is(.cl-rootBox, .neuro-clerk-root),
+.neuro-auth-card :is(.cl-cardBox, .neuro-clerk-card-box) {
+  width: 100%;
+  max-width: 460px;
+}
+
+.neuro-auth-card :is(.cl-cardBox, .neuro-clerk-card-box) {
+  box-shadow: none;
+}
+
+.neuro-auth-card :is(.cl-card, .neuro-clerk-card) {
+  width: 100%;
+  padding: clamp(1.35rem, 4vw, 2rem);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+  color: #111827;
+  font-family: var(--font-body), sans-serif;
+}
+
+.neuro-auth-card :is(.cl-header, .neuro-clerk-header) {
+  gap: 0.35rem;
+}
+
+.neuro-auth-card :is(.cl-headerTitle, .neuro-clerk-title) {
+  color: #111827;
+  font-family: var(--font-body), sans-serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.neuro-auth-card :is(.cl-headerSubtitle, .neuro-clerk-subtitle),
+.neuro-auth-card :is(.cl-footerActionText, .neuro-clerk-footer-text) {
+  color: #6b7280;
+  font-family: var(--font-body), sans-serif;
+}
+
+.neuro-auth-card :is(.cl-formFieldLabel, .neuro-clerk-label) {
+  color: #263348;
+  font-weight: 700;
+  font-family: var(--font-body), sans-serif;
+}
+
+.neuro-auth-card :is(.cl-formFieldInput, .neuro-clerk-input, .cl-otpCodeFieldInput, .neuro-clerk-otp-input) {
+  min-height: 48px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+  background: #f8fbff;
+  color: #111827;
+  box-shadow: none;
+}
+
+.neuro-auth-card :is(.cl-formFieldInput, .neuro-clerk-input, .cl-otpCodeFieldInput, .neuro-clerk-otp-input):focus {
+  border-color: rgba(18, 124, 255, 0.7);
+  box-shadow: 0 0 0 4px rgba(18, 124, 255, 0.14);
+}
+
+.neuro-auth-card :is(.cl-formButtonPrimary, .neuro-clerk-primary-button) {
+  min-height: 50px;
+  border-radius: 999px;
+  background: #127cff;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 18px 38px rgba(18, 124, 255, 0.26);
+}
+
+.neuro-auth-card :is(.cl-formButtonPrimary, .neuro-clerk-primary-button):hover {
+  background: #006fee;
+  box-shadow: 0 22px 44px rgba(18, 124, 255, 0.3);
+}
+
+.neuro-auth-card :is(.cl-socialButtonsBlockButton, .neuro-clerk-social-button) {
+  min-height: 48px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.neuro-auth-card :is(.cl-dividerLine, .neuro-clerk-divider-line) {
+  background: rgba(148, 163, 184, 0.22);
+}
+
+.neuro-auth-card :is(.cl-dividerText, .neuro-clerk-divider-text) {
+  color: #8a93a3;
+  font-family: var(--font-body), sans-serif;
+}
+
+.neuro-auth-card :is(.cl-footer, .neuro-clerk-footer) {
+  background: transparent;
+}
+
+.neuro-auth-card :is(.cl-footerActionLink, .neuro-clerk-link) {
+  color: #127cff;
+  font-weight: 800;
+}
+
+.neuro-auth-card :is(.cl-formFieldErrorText, .neuro-clerk-error) {
+  color: #b42318;
+  font-weight: 650;
+}
+
+.neuro-auth-card :is(.cl-alert, .neuro-clerk-alert) {
+  border-radius: 16px;
+  border-color: rgba(18, 124, 255, 0.18);
+  background: #f3f8ff;
 }
 
 @media (max-width: 900px) {
@@ -21888,6 +22089,10 @@ main:has(.trading-terminal) {
 
   .onboarding-primary-action {
     width: min(100%, 420px);
+  }
+
+  .neuro-auth-page {
+    padding-block: clamp(2.5rem, 8vh, 4.5rem) clamp(2.5rem, 8vh, 4rem);
   }
 }
 
@@ -21947,5 +22152,46 @@ main:has(.trading-terminal) {
     width: 52px;
     height: 52px;
     border-radius: 18px;
+  }
+
+  .neuro-auth-page {
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  .neuro-auth-heading h1 {
+    font-size: clamp(2.15rem, 11vw, 3rem);
+  }
+
+  .neuro-auth-heading p {
+    font-size: 1rem;
+  }
+
+  .neuro-auth-card,
+  .neuro-auth-message-card {
+    margin-top: 2rem;
+  }
+
+  .neuro-auth-card-lowered {
+    margin-top: 2.5rem;
+  }
+
+  .neuro-auth-card :is(.cl-card, .neuro-clerk-card),
+  .neuro-auth-message-card {
+    border-radius: 24px;
+    padding: 1.15rem;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 700px) {
+  .neuro-auth-page {
+    padding-block: 2.35rem 2.75rem;
+  }
+
+  .neuro-auth-card {
+    margin-top: 1.8rem;
+  }
+
+  .neuro-auth-card-lowered {
+    margin-top: 2.4rem;
   }
 }
