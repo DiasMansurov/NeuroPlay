@@ -11,8 +11,18 @@ function isDemoAccessRoute(pathname: string) {
   return pathname === "/" || pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
 }
 
+// The NeuroPlay patient and clinician apps render their own shell (sidebar, topbar, mobile nav).
+function isNeuroPlayAppRoute(pathname: string) {
+  return /^\/(app|doctor)(\/|$)/.test(pathname);
+}
+
 export function DemoSiteFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+
+  if (isNeuroPlayAppRoute(pathname)) {
+    return <>{children}</>;
+  }
+
   const showCopiedAppChrome = !isDemoAccessRoute(pathname);
 
   return (
