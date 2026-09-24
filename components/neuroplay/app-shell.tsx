@@ -19,7 +19,7 @@ const notifications = {
   ],
   doctor: [
     { icon: Bell, title: "James Okafor missed 3 sessions", detail: "Adherence dropped to 54%." },
-    { icon: Sparkles, title: "Alex Morgan hit a new ROM best", detail: "64° wrist extension this morning." },
+    { icon: Sparkles, title: "Safira Nugumanova hit a new ROM best", detail: "64° wrist extension this morning." },
     { icon: CalendarClock, title: "4 check-ins scheduled this week", detail: "Next: Thu, 1 Oct · 10:30" }
   ]
 };

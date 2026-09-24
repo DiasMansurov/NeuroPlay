@@ -57,7 +57,7 @@ export const navConfig: Record<ShellVariant, NavConfig> = {
       { href: "/app/profile#preferences", label: "Settings", icon: Settings }
     ],
     mobile: patientPrimary.slice(0, 4),
-    user: { name: "Alex Morgan", initials: "AM", role: "Patient" },
+    user: { name: "Safira Nugumanova", initials: "SN", role: "Patient" },
     home: "/app",
     searchPlaceholder: "Search exercises",
     searchTarget: "/app/exercises",

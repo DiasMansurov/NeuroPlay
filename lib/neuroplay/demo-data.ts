@@ -253,10 +253,10 @@ export function getExercise(id: string) {
 export const todaysPlanIds = ["wrist-range-of-motion", "grip-strength", "finger-coordination"];
 
 export const patientProfile = {
-  firstName: "Alex",
-  lastName: "Morgan",
-  initials: "AM",
-  email: "alex.morgan@example.com",
+  firstName: "Safira",
+  lastName: "Nugumanova",
+  initials: "SN",
+  email: "safira.nugumanova@example.com",
   dateOfBirth: "14 March 1978",
   phone: "+1 (555) 014-2290",
   program: "Upper-limb motor recovery",
@@ -403,9 +403,9 @@ const series = (values: number[]) => values.map((value, index) => ({ label: week
 
 export const patients: Patient[] = [
   {
-    id: "alex-morgan",
-    name: "Alex Morgan",
-    initials: "AM",
+    id: "safira-nugumanova",
+    name: "Safira Nugumanova",
+    initials: "SN",
     age: 48,
     program: "Upper-limb motor recovery",
     progress: 78,
