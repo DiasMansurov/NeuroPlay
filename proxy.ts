@@ -7,7 +7,6 @@ const isProtectedApiRoute = createRouteMatcher([
   "/api/classes(.*)",
   "/api/profile(.*)"
 ]);
-const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 const isPublicPageRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
 const isApiRoute = createRouteMatcher(["/api(.*)", "/trpc(.*)"]);
 
@@ -23,10 +22,6 @@ export default hasClerk
 
       if (!isApiRoute(req)) {
         const { userId } = await auth();
-
-        if (isAuthRoute(req) && userId) {
-          return redirectToOnboarding(req);
-        }
 
         if (!isPublicPageRoute(req) && !userId) {
           return redirectToOnboarding(req);
